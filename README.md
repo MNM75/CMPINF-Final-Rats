@@ -12,7 +12,7 @@ An Analysis of what Pittsburgh Neighborhood(s) would be best suited for a rat ba
 
 Number of dogs per neighborhood
 
-Data retrieved from the 2024 report at https://data.wprdc.org/dataset/allegheny-county-dog-licenses
+Data retrieved from the 2024 report of "Allegheny County Dog Licenses" at https://data.wprdc.org/dataset/allegheny-county-dog-licenses
 
 Number of dump sites per neighborhood
 
