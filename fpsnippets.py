@@ -6,6 +6,10 @@ from shapely.geometry import Point
 NEIGHBORHOODS = geopandas.read_file("https://data.wprdc.org/dataset/e672f13d-71c4-4a66-8f38-710e75ed80a4/resource/c5a93a8e-03d7-4eb3-91a8-c6b7db0fa261/download/pittsburghpaneighborhoods-.zip")
 # Load zip codes
 ZIPS = geopandas.read_file("https://data.wprdc.org/dataset/1a5135de-cabe-4e23-b5e4-b2b8dd733817/resource/ec228c0e-6b1e-4f44-a335-df05546d52ea/download/alcogisallegheny-county-zip-code-boundaries.zip")
+NEIGHBORHOODS = NEIGHBORHOODS.to_crs(ZIPS.crs)
+
+
+
 
 def geo_to_neighborhood(latitude, longitude):
     """Converts a geolocation (latitude and longitude) to a Pittsburgh neighborhood name.
@@ -19,14 +23,34 @@ def geo_to_neighborhood(latitude, longitude):
     """
     # Create a shapely point for the latitude and longitude
     pt = Point(longitude, latitude)
+    # print(pt)
     # Loop through the neighborhoods
     for _idx, neighborhood in NEIGHBORHOODS.iterrows():
+        print(neighborhood)
         # Check if this neighborhood contains the point
         if neighborhood["geometry"].contains(pt):
             # Return the name of the neighborhood
             return neighborhood["hood"]
     # Wasn't contained in the neighborhood
     return None
+
+
+
+def geo_to_neighborhood(latitude, longitude):
+    """Converts a geolocation (latitude and longitude) to a Pittsburgh neighborhood name."""
+    # Create GeoSeries with the point in EPSG:4326
+    pt = geopandas.GeoSeries([Point(longitude, latitude)], crs="EPSG:4326")
+
+    # Reproject point to match neighborhood CRS
+    pt = pt.to_crs(NEIGHBORHOODS.crs)
+
+    # Loop through the neighborhoods
+    for _idx, neighborhood in NEIGHBORHOODS.iterrows():
+        if neighborhood["geometry"].contains(pt.iloc[0]):
+            return neighborhood["hood"]
+
+    return None
+
 
 def zip_to_neighborhoods(zip_code):
     """Converts a ZIP code to a list of Pittsburgh neighborhood names.
@@ -38,7 +62,9 @@ def zip_to_neighborhoods(zip_code):
         list[str]: A list of neighborhood names within that ZIP code.
     """
     # Get this specific zip
+    
     zips_filtered = ZIPS[ZIPS["ZIP"] == str(zip_code)]
+
     if len(zips_filtered) < 1:
         return None
     zp = zips_filtered.iloc[0]
